@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Raychuw : Thank you for coming   on 首页</title>
+    <link>http://leizhuray.me/myblog/</link>
+    <description>Recent content in Raychuw : Thank you for coming   on 首页</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <lastBuildDate>Tue, 30 Mar 2021 20:39:45 +0800</lastBuildDate>
+    
+	<atom:link href="http://leizhuray.me/myblog/index.xml" rel="self" type="application/rss+xml" />
+    
+    
+    <item>
+      <title>The First</title>
+      <link>http://leizhuray.me/myblog/post/test/</link>
+      <pubDate>Tue, 30 Mar 2021 20:39:45 +0800</pubDate>
+      
+      <guid>http://leizhuray.me/myblog/post/test/</guid>
+      <description>Hi 大家好，我是Ray，来自北京大学物理学院的在读博士生。这是本站的第一篇博客，我希望再以后的日子里可以常更新，把我日常生活中的一些小事随笔或者生活感悟，亦或是一些学习到的知识写成博客分享给大家。</description>
+    </item>
+    
+    <item>
+      <title>联系我</title>
+      <link>http://leizhuray.me/myblog/contact/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>http://leizhuray.me/myblog/contact/</guid>
+      <description>我希望可以听到来自你的声音。弱水三千，只取一瓢，不需长篇累牍，只需你的一句话，就是对我最大的认可。
+Your Name Email Address An email address is required.  Message   </description>
+    </item>
+    
+  </channel>
+</rss>
