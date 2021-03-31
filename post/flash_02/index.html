@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="en-us">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    
+    <title>Flash 程序使用总结(2) | 首页</title>
+    <meta name="viewport" content="width=device-width,minimum-scale=1">
+    <meta name="description" content="Flash程序使用（二）  上一章节中讲了Flash的发展和程序安装，并且我们以Sedov激波为例运行了Flash程序。在这一章节中我们将讲解Flash中一个模拟case的组成部分。
+模拟案例-以LaserSlab为例  Flash中提供了丰富的模拟案例。俗话说例子是最好的老师。学习写一个新case肯定需要从读懂已经有的case开始。Flash中所有的case存放在Flash文件夹中的source/Simulation/SimulationMain中，感兴趣的同学解压后可以到该路径下查看。大部分文件夹中都是一个完整的case。由于国内利用Flash做研究的学者大部分都是激光等离子体领域的人，所以在这里我们通过Flash中的LaserSlab这个case来进行讲解。在这个case中基本涉及到了我们上一节所提到的大部分的模块。相信大家可以通过理解这个case一通百通，从而可以写出自己所想要的case。
+文件组成  进入LaserSlab文件夹后，看到一大堆文件，心头不由一紧。这也是我第一次看到时的想法。不要担心，我们可以化繁就简，这里面很多文件都是不同情况下的输入文件，就是你所看到的后缀名为.par的文件。组成一个case的基本文件大部分情况下只有6个，分别为Config, Simulation_init.F90, Simulation_data.F90, Simulation_initBlock.F90, Makefile以及flash.par。接下来我们将详细讲解每一个文件中的内容以及其作用。
+Config文件  Config文件的主要作用在于确定要用的模块以及定义模拟中会用到的主要参数。如下图所示为LaserSlab案例下Config文件中的内容。以关键字REQUIRE开头的是模拟中需要用到的模块。USERSETUPVARS是指在setup这步时输入的可选参数，如果利用到三温模块（具体什么是三温后续会进行讲解），那么会调用其他的一些热传导以及扩散的模块。DATAFILES是指在模拟中会用到的一些数据文件。这里需要用到He气以及Al的状态方程和不透明度的表，这些表文件必须和case放在同一个文件夹中，否则无法成功复制到组件好的运行程序文件夹中。以D开头的为注释。PARAMETER是在模拟中会用到的一些模拟参数。在模拟中用做输入，或者会在不同文件中用到的数据，都需要在这里定义，否则会出错。在定义参数时需要指定参数名，参数类型，以及数据初始值。
+Simulation_data.F90  在Config中注册的参量需要在Simulation_data.F90中指定数据类型从而传入并储存。
+Simulation_init.F90  init顾名思义是进行初始化的。在这个case中我们需要从将从flash.par中读入的数据赋值给相应的参数并将其储存在程序中。函数RuntimeParameters_get()就是用来从flash.par中读取相应参数。
+Simulation_initBlock.F90  在这些文件中最重要的就是这个文件。通过改变文件中的相应参数，可以决定靶的初始形状，初始位置等等。因此对这个文件需要进行详细的讲解。
+ 接下来利用三个循环将不同位置处的参量进行具体的定义。NDIM是在setup时定义的维度，species这个参量是用来区分是否为我们设定的不同粒子的信息。由于Flash不能解真空态，所以必须布上一些低密度的背景气体；在这个case中是利用He气作为背景气体的。确定好不同位置处的密度，温度等信息。利用Grid_putPointData这个函数将具体的信息赋值给程序计算。
+ 将所有的参量定义完成之后，就可以将之前用到的数组等的内存释放。这里需要注意的是画红线处的NDIM==2需要改成为NDIM&gt;=2；在不做三维的有磁场的情况时，这个case一般是对的。如果一旦做三维且有磁场的case，如果不做修正，相当于这里始终不会进入facez的那一步，所以会很快发现模拟盒子中磁场变得很小。
+ 基本上Simulation_initBlock.F90中的部分就都讲解的差不多了，接下来我们说flash.par文件。
+Flash.par  flash.par就是Flash程序中的输入部分，在LaserSlab这个case中我们使用example.par这个文件。读者可以修改里面的具体参数改变你的输入值。在这里具体讲解一下激光注入部分吧，其他部分都很好理解。
+ 打开激光能量沉积的开关，规定使用的最高光线数目，注意后面的所有激光的光线数目的总和不能超过这个值。Laser pulse为激光的脉冲波形；beam为具体的激光参数。lens为激光注入的位置，注意该位置要在模拟box之外。target为激光想要对准的盒子内的位置。接下来是激光的焦斑半径的大小。激光脉冲的参数，之前定义的以及激光的波长，波长的单位是微米。接着是截面分布类型以及高斯形焦斑的分布。剩下的基本不需要修改了，但在二维的直角坐标中截面以及gridType只能用1维的。
+ 需要说明的是在这里打开了激光3Din2D的算法，所以只能用柱坐标。柱坐标中的y就是z，所以注意这里激光注入的时候box中的y的部分为z的部分。
+Makefile  Makefile在这里是Simulation部分的，不是标准的make文件。在setup时会生成标准的gnu/make文件。在这里一般只需要写Simulation_data.o就可以，其他部分都在顶层的SimulationMain中有写。如果用到了其他的程序文件，在这里也需要写明。
+ 好了，基本上我们就把LaserSlab这个case讲解完了，后面我们会运行这个case，并讲解一下初步的后处理方法。希望可以帮到大家。">
+    <meta name="generator" content="Hugo 0.65.0" />
+    
+    
+      <META NAME="ROBOTS" CONTENT="NOINDEX, NOFOLLOW">
+    
+
+    
+
+  
+  
+    <link rel="stylesheet" href="/myblog/ananke/dist/main.css_5c99d70a7725bacd4c701e995b969fea.css" >
+  
+
+
+
+
+    
+      
+
+    
+
+    
+    
+    <meta property="og:title" content="Flash 程序使用总结(2)" />
+<meta property="og:description" content="Flash程序使用（二）  上一章节中讲了Flash的发展和程序安装，并且我们以Sedov激波为例运行了Flash程序。在这一章节中我们将讲解Flash中一个模拟case的组成部分。
+模拟案例-以LaserSlab为例  Flash中提供了丰富的模拟案例。俗话说例子是最好的老师。学习写一个新case肯定需要从读懂已经有的case开始。Flash中所有的case存放在Flash文件夹中的source/Simulation/SimulationMain中，感兴趣的同学解压后可以到该路径下查看。大部分文件夹中都是一个完整的case。由于国内利用Flash做研究的学者大部分都是激光等离子体领域的人，所以在这里我们通过Flash中的LaserSlab这个case来进行讲解。在这个case中基本涉及到了我们上一节所提到的大部分的模块。相信大家可以通过理解这个case一通百通，从而可以写出自己所想要的case。
+文件组成  进入LaserSlab文件夹后，看到一大堆文件，心头不由一紧。这也是我第一次看到时的想法。不要担心，我们可以化繁就简，这里面很多文件都是不同情况下的输入文件，就是你所看到的后缀名为.par的文件。组成一个case的基本文件大部分情况下只有6个，分别为Config, Simulation_init.F90, Simulation_data.F90, Simulation_initBlock.F90, Makefile以及flash.par。接下来我们将详细讲解每一个文件中的内容以及其作用。
+Config文件  Config文件的主要作用在于确定要用的模块以及定义模拟中会用到的主要参数。如下图所示为LaserSlab案例下Config文件中的内容。以关键字REQUIRE开头的是模拟中需要用到的模块。USERSETUPVARS是指在setup这步时输入的可选参数，如果利用到三温模块（具体什么是三温后续会进行讲解），那么会调用其他的一些热传导以及扩散的模块。DATAFILES是指在模拟中会用到的一些数据文件。这里需要用到He气以及Al的状态方程和不透明度的表，这些表文件必须和case放在同一个文件夹中，否则无法成功复制到组件好的运行程序文件夹中。以D开头的为注释。PARAMETER是在模拟中会用到的一些模拟参数。在模拟中用做输入，或者会在不同文件中用到的数据，都需要在这里定义，否则会出错。在定义参数时需要指定参数名，参数类型，以及数据初始值。
+Simulation_data.F90  在Config中注册的参量需要在Simulation_data.F90中指定数据类型从而传入并储存。
+Simulation_init.F90  init顾名思义是进行初始化的。在这个case中我们需要从将从flash.par中读入的数据赋值给相应的参数并将其储存在程序中。函数RuntimeParameters_get()就是用来从flash.par中读取相应参数。
+Simulation_initBlock.F90  在这些文件中最重要的就是这个文件。通过改变文件中的相应参数，可以决定靶的初始形状，初始位置等等。因此对这个文件需要进行详细的讲解。
+ 接下来利用三个循环将不同位置处的参量进行具体的定义。NDIM是在setup时定义的维度，species这个参量是用来区分是否为我们设定的不同粒子的信息。由于Flash不能解真空态，所以必须布上一些低密度的背景气体；在这个case中是利用He气作为背景气体的。确定好不同位置处的密度，温度等信息。利用Grid_putPointData这个函数将具体的信息赋值给程序计算。
+ 将所有的参量定义完成之后，就可以将之前用到的数组等的内存释放。这里需要注意的是画红线处的NDIM==2需要改成为NDIM&gt;=2；在不做三维的有磁场的情况时，这个case一般是对的。如果一旦做三维且有磁场的case，如果不做修正，相当于这里始终不会进入facez的那一步，所以会很快发现模拟盒子中磁场变得很小。
+ 基本上Simulation_initBlock.F90中的部分就都讲解的差不多了，接下来我们说flash.par文件。
+Flash.par  flash.par就是Flash程序中的输入部分，在LaserSlab这个case中我们使用example.par这个文件。读者可以修改里面的具体参数改变你的输入值。在这里具体讲解一下激光注入部分吧，其他部分都很好理解。
+ 打开激光能量沉积的开关，规定使用的最高光线数目，注意后面的所有激光的光线数目的总和不能超过这个值。Laser pulse为激光的脉冲波形；beam为具体的激光参数。lens为激光注入的位置，注意该位置要在模拟box之外。target为激光想要对准的盒子内的位置。接下来是激光的焦斑半径的大小。激光脉冲的参数，之前定义的以及激光的波长，波长的单位是微米。接着是截面分布类型以及高斯形焦斑的分布。剩下的基本不需要修改了，但在二维的直角坐标中截面以及gridType只能用1维的。
+ 需要说明的是在这里打开了激光3Din2D的算法，所以只能用柱坐标。柱坐标中的y就是z，所以注意这里激光注入的时候box中的y的部分为z的部分。
+Makefile  Makefile在这里是Simulation部分的，不是标准的make文件。在setup时会生成标准的gnu/make文件。在这里一般只需要写Simulation_data.o就可以，其他部分都在顶层的SimulationMain中有写。如果用到了其他的程序文件，在这里也需要写明。
+ 好了，基本上我们就把LaserSlab这个case讲解完了，后面我们会运行这个case，并讲解一下初步的后处理方法。希望可以帮到大家。" />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="http://leizhuray.me/myblog/post/flash_02/" />
+<meta property="article:published_time" content="2021-01-31T20:39:45+08:00" />
+<meta property="article:modified_time" content="2021-01-31T20:39:45+08:00" /><meta property="og:site_name" content="首页" />
+<meta itemprop="name" content="Flash 程序使用总结(2)">
+<meta itemprop="description" content="Flash程序使用（二）  上一章节中讲了Flash的发展和程序安装，并且我们以Sedov激波为例运行了Flash程序。在这一章节中我们将讲解Flash中一个模拟case的组成部分。
+模拟案例-以LaserSlab为例  Flash中提供了丰富的模拟案例。俗话说例子是最好的老师。学习写一个新case肯定需要从读懂已经有的case开始。Flash中所有的case存放在Flash文件夹中的source/Simulation/SimulationMain中，感兴趣的同学解压后可以到该路径下查看。大部分文件夹中都是一个完整的case。由于国内利用Flash做研究的学者大部分都是激光等离子体领域的人，所以在这里我们通过Flash中的LaserSlab这个case来进行讲解。在这个case中基本涉及到了我们上一节所提到的大部分的模块。相信大家可以通过理解这个case一通百通，从而可以写出自己所想要的case。
+文件组成  进入LaserSlab文件夹后，看到一大堆文件，心头不由一紧。这也是我第一次看到时的想法。不要担心，我们可以化繁就简，这里面很多文件都是不同情况下的输入文件，就是你所看到的后缀名为.par的文件。组成一个case的基本文件大部分情况下只有6个，分别为Config, Simulation_init.F90, Simulation_data.F90, Simulation_initBlock.F90, Makefile以及flash.par。接下来我们将详细讲解每一个文件中的内容以及其作用。
+Config文件  Config文件的主要作用在于确定要用的模块以及定义模拟中会用到的主要参数。如下图所示为LaserSlab案例下Config文件中的内容。以关键字REQUIRE开头的是模拟中需要用到的模块。USERSETUPVARS是指在setup这步时输入的可选参数，如果利用到三温模块（具体什么是三温后续会进行讲解），那么会调用其他的一些热传导以及扩散的模块。DATAFILES是指在模拟中会用到的一些数据文件。这里需要用到He气以及Al的状态方程和不透明度的表，这些表文件必须和case放在同一个文件夹中，否则无法成功复制到组件好的运行程序文件夹中。以D开头的为注释。PARAMETER是在模拟中会用到的一些模拟参数。在模拟中用做输入，或者会在不同文件中用到的数据，都需要在这里定义，否则会出错。在定义参数时需要指定参数名，参数类型，以及数据初始值。
+Simulation_data.F90  在Config中注册的参量需要在Simulation_data.F90中指定数据类型从而传入并储存。
+Simulation_init.F90  init顾名思义是进行初始化的。在这个case中我们需要从将从flash.par中读入的数据赋值给相应的参数并将其储存在程序中。函数RuntimeParameters_get()就是用来从flash.par中读取相应参数。
+Simulation_initBlock.F90  在这些文件中最重要的就是这个文件。通过改变文件中的相应参数，可以决定靶的初始形状，初始位置等等。因此对这个文件需要进行详细的讲解。
+ 接下来利用三个循环将不同位置处的参量进行具体的定义。NDIM是在setup时定义的维度，species这个参量是用来区分是否为我们设定的不同粒子的信息。由于Flash不能解真空态，所以必须布上一些低密度的背景气体；在这个case中是利用He气作为背景气体的。确定好不同位置处的密度，温度等信息。利用Grid_putPointData这个函数将具体的信息赋值给程序计算。
+ 将所有的参量定义完成之后，就可以将之前用到的数组等的内存释放。这里需要注意的是画红线处的NDIM==2需要改成为NDIM&gt;=2；在不做三维的有磁场的情况时，这个case一般是对的。如果一旦做三维且有磁场的case，如果不做修正，相当于这里始终不会进入facez的那一步，所以会很快发现模拟盒子中磁场变得很小。
+ 基本上Simulation_initBlock.F90中的部分就都讲解的差不多了，接下来我们说flash.par文件。
+Flash.par  flash.par就是Flash程序中的输入部分，在LaserSlab这个case中我们使用example.par这个文件。读者可以修改里面的具体参数改变你的输入值。在这里具体讲解一下激光注入部分吧，其他部分都很好理解。
+ 打开激光能量沉积的开关，规定使用的最高光线数目，注意后面的所有激光的光线数目的总和不能超过这个值。Laser pulse为激光的脉冲波形；beam为具体的激光参数。lens为激光注入的位置，注意该位置要在模拟box之外。target为激光想要对准的盒子内的位置。接下来是激光的焦斑半径的大小。激光脉冲的参数，之前定义的以及激光的波长，波长的单位是微米。接着是截面分布类型以及高斯形焦斑的分布。剩下的基本不需要修改了，但在二维的直角坐标中截面以及gridType只能用1维的。
+ 需要说明的是在这里打开了激光3Din2D的算法，所以只能用柱坐标。柱坐标中的y就是z，所以注意这里激光注入的时候box中的y的部分为z的部分。
+Makefile  Makefile在这里是Simulation部分的，不是标准的make文件。在setup时会生成标准的gnu/make文件。在这里一般只需要写Simulation_data.o就可以，其他部分都在顶层的SimulationMain中有写。如果用到了其他的程序文件，在这里也需要写明。
+ 好了，基本上我们就把LaserSlab这个case讲解完了，后面我们会运行这个case，并讲解一下初步的后处理方法。希望可以帮到大家。">
+<meta itemprop="datePublished" content="2021-01-31T20:39:45&#43;08:00" />
+<meta itemprop="dateModified" content="2021-01-31T20:39:45&#43;08:00" />
+<meta itemprop="wordCount" content="29">
+
+
+
+<meta itemprop="keywords" content="" /><meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="Flash 程序使用总结(2)"/>
+<meta name="twitter:description" content="Flash程序使用（二）  上一章节中讲了Flash的发展和程序安装，并且我们以Sedov激波为例运行了Flash程序。在这一章节中我们将讲解Flash中一个模拟case的组成部分。
+模拟案例-以LaserSlab为例  Flash中提供了丰富的模拟案例。俗话说例子是最好的老师。学习写一个新case肯定需要从读懂已经有的case开始。Flash中所有的case存放在Flash文件夹中的source/Simulation/SimulationMain中，感兴趣的同学解压后可以到该路径下查看。大部分文件夹中都是一个完整的case。由于国内利用Flash做研究的学者大部分都是激光等离子体领域的人，所以在这里我们通过Flash中的LaserSlab这个case来进行讲解。在这个case中基本涉及到了我们上一节所提到的大部分的模块。相信大家可以通过理解这个case一通百通，从而可以写出自己所想要的case。
+文件组成  进入LaserSlab文件夹后，看到一大堆文件，心头不由一紧。这也是我第一次看到时的想法。不要担心，我们可以化繁就简，这里面很多文件都是不同情况下的输入文件，就是你所看到的后缀名为.par的文件。组成一个case的基本文件大部分情况下只有6个，分别为Config, Simulation_init.F90, Simulation_data.F90, Simulation_initBlock.F90, Makefile以及flash.par。接下来我们将详细讲解每一个文件中的内容以及其作用。
+Config文件  Config文件的主要作用在于确定要用的模块以及定义模拟中会用到的主要参数。如下图所示为LaserSlab案例下Config文件中的内容。以关键字REQUIRE开头的是模拟中需要用到的模块。USERSETUPVARS是指在setup这步时输入的可选参数，如果利用到三温模块（具体什么是三温后续会进行讲解），那么会调用其他的一些热传导以及扩散的模块。DATAFILES是指在模拟中会用到的一些数据文件。这里需要用到He气以及Al的状态方程和不透明度的表，这些表文件必须和case放在同一个文件夹中，否则无法成功复制到组件好的运行程序文件夹中。以D开头的为注释。PARAMETER是在模拟中会用到的一些模拟参数。在模拟中用做输入，或者会在不同文件中用到的数据，都需要在这里定义，否则会出错。在定义参数时需要指定参数名，参数类型，以及数据初始值。
+Simulation_data.F90  在Config中注册的参量需要在Simulation_data.F90中指定数据类型从而传入并储存。
+Simulation_init.F90  init顾名思义是进行初始化的。在这个case中我们需要从将从flash.par中读入的数据赋值给相应的参数并将其储存在程序中。函数RuntimeParameters_get()就是用来从flash.par中读取相应参数。
+Simulation_initBlock.F90  在这些文件中最重要的就是这个文件。通过改变文件中的相应参数，可以决定靶的初始形状，初始位置等等。因此对这个文件需要进行详细的讲解。
+ 接下来利用三个循环将不同位置处的参量进行具体的定义。NDIM是在setup时定义的维度，species这个参量是用来区分是否为我们设定的不同粒子的信息。由于Flash不能解真空态，所以必须布上一些低密度的背景气体；在这个case中是利用He气作为背景气体的。确定好不同位置处的密度，温度等信息。利用Grid_putPointData这个函数将具体的信息赋值给程序计算。
+ 将所有的参量定义完成之后，就可以将之前用到的数组等的内存释放。这里需要注意的是画红线处的NDIM==2需要改成为NDIM&gt;=2；在不做三维的有磁场的情况时，这个case一般是对的。如果一旦做三维且有磁场的case，如果不做修正，相当于这里始终不会进入facez的那一步，所以会很快发现模拟盒子中磁场变得很小。
+ 基本上Simulation_initBlock.F90中的部分就都讲解的差不多了，接下来我们说flash.par文件。
+Flash.par  flash.par就是Flash程序中的输入部分，在LaserSlab这个case中我们使用example.par这个文件。读者可以修改里面的具体参数改变你的输入值。在这里具体讲解一下激光注入部分吧，其他部分都很好理解。
+ 打开激光能量沉积的开关，规定使用的最高光线数目，注意后面的所有激光的光线数目的总和不能超过这个值。Laser pulse为激光的脉冲波形；beam为具体的激光参数。lens为激光注入的位置，注意该位置要在模拟box之外。target为激光想要对准的盒子内的位置。接下来是激光的焦斑半径的大小。激光脉冲的参数，之前定义的以及激光的波长，波长的单位是微米。接着是截面分布类型以及高斯形焦斑的分布。剩下的基本不需要修改了，但在二维的直角坐标中截面以及gridType只能用1维的。
+ 需要说明的是在这里打开了激光3Din2D的算法，所以只能用柱坐标。柱坐标中的y就是z，所以注意这里激光注入的时候box中的y的部分为z的部分。
+Makefile  Makefile在这里是Simulation部分的，不是标准的make文件。在setup时会生成标准的gnu/make文件。在这里一般只需要写Simulation_data.o就可以，其他部分都在顶层的SimulationMain中有写。如果用到了其他的程序文件，在这里也需要写明。
+ 好了，基本上我们就把LaserSlab这个case讲解完了，后面我们会运行这个case，并讲解一下初步的后处理方法。希望可以帮到大家。"/>
+
+	
+  </head>
+
+  <body class="ma0 avenir bg-near-white">
+
+    
+   
+  
+
+  <header>
+    <div class="bg-black">
+      <nav class="pv3 ph3 ph4-ns" role="navigation">
+  <div class="flex-l justify-between items-center center">
+    <a href="/myblog/" class="f3 fw2 hover-white no-underline white-90 dib">
+      
+        首页
+      
+    </a>
+    <div class="flex-l items-center">
+      
+
+      
+        <ul class="pl0 mr3">
+          
+          <li class="list f5 f4-ns fw4 dib pr3">
+            <a class="hover-white no-underline white-90" href="/myblog/about/" title="关于我 page">
+              关于我
+            </a>
+          </li>
+          
+          <li class="list f5 f4-ns fw4 dib pr3">
+            <a class="hover-white no-underline white-90" href="/myblog/post/" title="博客 page">
+              博客
+            </a>
+          </li>
+          
+          <li class="list f5 f4-ns fw4 dib pr3">
+            <a class="hover-white no-underline white-90" href="/myblog/contact/" title="联系我 page">
+              联系我
+            </a>
+          </li>
+          
+        </ul>
+      
+      
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    </div>
+  </div>
+</nav>
+
+    </div>
+  </header>
+
+
+
+    <main class="pb7" role="main">
+      
+  
+  <article class="flex-l flex-wrap justify-between mw8 center ph3">
+    <header class="mt4 w-100">
+      <aside class="instapaper_ignoref b helvetica tracked">
+          
+        博客
+      </aside>
+      
+
+
+
+
+  <div id="sharing" class="mt3">
+
+    
+    <a href="https://www.facebook.com/sharer.php?u=http://leizhuray.me/myblog/post/flash_02/" class="facebook no-underline" aria-label="share on Facebook">
+      <svg height="32px"  style="enable-background:new 0 0 67 67;" version="1.1" viewBox="0 0 67 67" width="32px" xml:space="preserve" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"><path d="M28.765,50.32h6.744V33.998h4.499l0.596-5.624h-5.095  l0.007-2.816c0-1.466,0.14-2.253,2.244-2.253h2.812V17.68h-4.5c-5.405,0-7.307,2.729-7.307,7.317v3.377h-3.369v5.625h3.369V50.32z   M33,64C16.432,64,3,50.569,3,34S16.432,4,33,4s30,13.431,30,30S49.568,64,33,64z" style="fill-rule:evenodd;clip-rule:evenodd;"/></svg>
+
+    </a>
+
+    
+    
+    <a href="https://twitter.com/share?url=http://leizhuray.me/myblog/post/flash_02/&amp;text=Flash%20%e7%a8%8b%e5%ba%8f%e4%bd%bf%e7%94%a8%e6%80%bb%e7%bb%93%282%29" class="twitter no-underline" aria-label="share on Twitter">
+      <svg height="32px"  style="enable-background:new 0 0 67 67;" version="1.1" viewBox="0 0 67 67" width="32px" xml:space="preserve" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"><path d="M37.167,22.283c-2.619,0.953-4.274,3.411-4.086,6.101  l0.063,1.038l-1.048-0.127c-3.813-0.487-7.145-2.139-9.974-4.915l-1.383-1.377l-0.356,1.017c-0.754,2.267-0.272,4.661,1.299,6.271  c0.838,0.89,0.649,1.017-0.796,0.487c-0.503-0.169-0.943-0.296-0.985-0.233c-0.146,0.149,0.356,2.076,0.754,2.839  c0.545,1.06,1.655,2.097,2.871,2.712l1.027,0.487l-1.215,0.021c-1.173,0-1.215,0.021-1.089,0.467  c0.419,1.377,2.074,2.839,3.918,3.475l1.299,0.444l-1.131,0.678c-1.676,0.976-3.646,1.526-5.616,1.568  C19.775,43.256,19,43.341,19,43.405c0,0.211,2.557,1.397,4.044,1.864c4.463,1.377,9.765,0.783,13.746-1.568  c2.829-1.673,5.657-5,6.978-8.221c0.713-1.716,1.425-4.851,1.425-6.354c0-0.975,0.063-1.102,1.236-2.267  c0.692-0.678,1.341-1.419,1.467-1.631c0.21-0.403,0.188-0.403-0.88-0.043c-1.781,0.636-2.033,0.551-1.152-0.402  c0.649-0.678,1.425-1.907,1.425-2.267c0-0.063-0.314,0.042-0.671,0.233c-0.377,0.212-1.215,0.53-1.844,0.72l-1.131,0.361l-1.027-0.7  c-0.566-0.381-1.361-0.805-1.781-0.932C39.766,21.902,38.131,21.944,37.167,22.283z M33,64C16.432,64,3,50.569,3,34S16.432,4,33,4  s30,13.431,30,30S49.568,64,33,64z" style="fill-rule:evenodd;clip-rule:evenodd;fill:;"/></svg>
+
+    </a>
+
+    
+    <a href="https://www.linkedin.com/shareArticle?mini=true&amp;url=http://leizhuray.me/myblog/post/flash_02/&amp;title=Flash%20%e7%a8%8b%e5%ba%8f%e4%bd%bf%e7%94%a8%e6%80%bb%e7%bb%93%282%29" class="linkedin no-underline" aria-label="share on LinkedIn">
+      <svg  height="32px"  style="enable-background:new 0 0 65 65;" version="1.1" viewBox="0 0 65 65" width="32px" xml:space="preserve" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+  <path d="M50.837,48.137V36.425c0-6.275-3.35-9.195-7.816-9.195  c-3.604,0-5.219,1.983-6.119,3.374V27.71h-6.79c0.09,1.917,0,20.427,0,20.427h6.79V36.729c0-0.609,0.044-1.219,0.224-1.655  c0.49-1.22,1.607-2.483,3.482-2.483c2.458,0,3.44,1.873,3.44,4.618v10.929H50.837z M22.959,24.922c2.367,0,3.842-1.57,3.842-3.531  c-0.044-2.003-1.475-3.528-3.797-3.528s-3.841,1.524-3.841,3.528c0,1.961,1.474,3.531,3.753,3.531H22.959z M34,64  C17.432,64,4,50.568,4,34C4,17.431,17.432,4,34,4s30,13.431,30,30C64,50.568,50.568,64,34,64z M26.354,48.137V27.71h-6.789v20.427  H26.354z" style="fill-rule:evenodd;clip-rule:evenodd;fill:;"/>
+</svg>
+
+    </a>
+  </div>
+
+
+      <h1 class="f1 athelas mt3 mb1">Flash 程序使用总结(2)</h1>
+      
+      
+      <time class="f6 mv4 dib tracked" datetime="2021-01-31T20:39:45+08:00">January 31, 2021</time>
+
+      
+      
+    </header>
+    <div class="nested-copy-line-height lh-copy serif f4 nested-links nested-img mid-gray pr4-l w-two-thirds-l"><h1 id="flash程序使用二">Flash程序使用（二）</h1>
+<p>  上一章节中讲了Flash的发展和程序安装，并且我们以Sedov激波为例运行了Flash程序。在这一章节中我们将讲解Flash中一个模拟case的组成部分。</p>
+<h2 id="模拟案例-以laserslab为例">模拟案例-以LaserSlab为例</h2>
+<p>  Flash中提供了丰富的模拟案例。俗话说例子是最好的老师。学习写一个新case肯定需要从读懂已经有的case开始。Flash中所有的case存放在Flash文件夹中的source/Simulation/SimulationMain中，感兴趣的同学解压后可以到该路径下查看。大部分文件夹中都是一个完整的case。由于国内利用Flash做研究的学者大部分都是激光等离子体领域的人，所以在这里我们通过Flash中的LaserSlab这个case来进行讲解。在这个case中基本涉及到了我们上一节所提到的大部分的模块。相信大家可以通过理解这个case一通百通，从而可以写出自己所想要的case。</p>
+<h3 id="文件组成">文件组成</h3>
+<p>  进入LaserSlab文件夹后，看到一大堆文件，心头不由一紧。这也是我第一次看到时的想法。不要担心，我们可以化繁就简，这里面很多文件都是不同情况下的输入文件，就是你所看到的后缀名为.par的文件。组成一个case的基本文件大部分情况下只有6个，分别为Config, Simulation_init.F90, Simulation_data.F90, Simulation_initBlock.F90, Makefile以及flash.par。接下来我们将详细讲解每一个文件中的内容以及其作用。</p>
+<h4 id="config文件">Config文件</h4>
+<p>  Config文件的主要作用在于确定要用的模块以及定义模拟中会用到的主要参数。如下图所示为LaserSlab案例下Config文件中的内容。以关键字REQUIRE开头的是模拟中需要用到的模块。USERSETUPVARS是指在setup这步时输入的可选参数，如果利用到三温模块（具体什么是三温后续会进行讲解），那么会调用其他的一些热传导以及扩散的模块。DATAFILES是指在模拟中会用到的一些数据文件。这里需要用到He气以及Al的状态方程和不透明度的表，这些表文件必须和case放在同一个文件夹中，否则无法成功复制到组件好的运行程序文件夹中。以D开头的为注释。PARAMETER是在模拟中会用到的一些模拟参数。在模拟中用做输入，或者会在不同文件中用到的数据，都需要在这里定义，否则会出错。在定义参数时需要指定参数名，参数类型，以及数据初始值。</p>
+<!-- raw HTML omitted -->
+<h4 id="simulation_dataf90">Simulation_data.F90</h4>
+<p>  在Config中注册的参量需要在Simulation_data.F90中指定数据类型从而传入并储存。</p>
+<!-- raw HTML omitted -->
+<h4 id="simulation_initf90">Simulation_init.F90</h4>
+<p>  init顾名思义是进行初始化的。在这个case中我们需要从将从flash.par中读入的数据赋值给相应的参数并将其储存在程序中。函数RuntimeParameters_get()就是用来从flash.par中读取相应参数。</p>
+<!-- raw HTML omitted -->
+<h4 id="simulation_initblockf90">Simulation_initBlock.F90</h4>
+<p>  在这些文件中最重要的就是这个文件。通过改变文件中的相应参数，可以决定靶的初始形状，初始位置等等。因此对这个文件需要进行详细的讲解。</p>
+<!-- raw HTML omitted -->
+<!-- raw HTML omitted -->
+<p>  接下来利用三个循环将不同位置处的参量进行具体的定义。NDIM是在setup时定义的维度，species这个参量是用来区分是否为我们设定的不同粒子的信息。由于Flash不能解真空态，所以必须布上一些低密度的背景气体；在这个case中是利用He气作为背景气体的。确定好不同位置处的密度，温度等信息。利用Grid_putPointData这个函数将具体的信息赋值给程序计算。</p>
+<!-- raw HTML omitted -->
+<p>  将所有的参量定义完成之后，就可以将之前用到的数组等的内存释放。这里需要注意的是画红线处的NDIM==2需要改成为NDIM&gt;=2；在不做三维的有磁场的情况时，这个case一般是对的。如果一旦做三维且有磁场的case，如果不做修正，相当于这里始终不会进入facez的那一步，所以会很快发现模拟盒子中磁场变得很小。</p>
+<p>  基本上Simulation_initBlock.F90中的部分就都讲解的差不多了，接下来我们说flash.par文件。</p>
+<h4 id="flashpar">Flash.par</h4>
+<p>  flash.par就是Flash程序中的输入部分，在LaserSlab这个case中我们使用example.par这个文件。读者可以修改里面的具体参数改变你的输入值。在这里具体讲解一下激光注入部分吧，其他部分都很好理解。</p>
+<!-- raw HTML omitted -->
+<p>  打开激光能量沉积的开关，规定使用的最高光线数目，注意后面的所有激光的光线数目的总和不能超过这个值。Laser pulse为激光的脉冲波形；beam为具体的激光参数。lens为激光注入的位置，注意该位置要在模拟box之外。target为激光想要对准的盒子内的位置。接下来是激光的焦斑半径的大小。激光脉冲的参数，之前定义的以及激光的波长，波长的单位是微米。接着是截面分布类型以及高斯形焦斑的分布。剩下的基本不需要修改了，但在二维的直角坐标中截面以及gridType只能用1维的。</p>
+<p>  需要说明的是在这里打开了激光3Din2D的算法，所以只能用柱坐标。柱坐标中的y就是z，所以注意这里激光注入的时候box中的y的部分为z的部分。</p>
+<h4 id="makefile">Makefile</h4>
+<p>  Makefile在这里是Simulation部分的，不是标准的make文件。在setup时会生成标准的gnu/make文件。在这里一般只需要写Simulation_data.o就可以，其他部分都在顶层的SimulationMain中有写。如果用到了其他的程序文件，在这里也需要写明。</p>
+<p>  好了，基本上我们就把LaserSlab这个case讲解完了，后面我们会运行这个case，并讲解一下初步的后处理方法。希望可以帮到大家。</p>
+<ul class="pa0">
+  
+</ul>
+<div class="mt6 instapaper_ignoref">
+      
+      
+      </div>
+    </div>
+
+    <aside class="w-30-l mt6-l">
+
+
+
+
+</aside>
+
+  </article>
+
+    </main>
+    <footer class="bg-black bottom-0 w-100 pa3" role="contentinfo">
+  <div class="flex justify-between">
+  <a class="f4 fw4 hover-white no-underline white-70 dn dib-ns pv2 ph3" href="http://leizhuray.me/myblog/" >
+    &copy;  首页 2021 
+  </a>
+    <div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</div>
+  </div>
+</footer>
+
+  </body>
+</html>

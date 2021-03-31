@@ -1,0 +1,379 @@
+<!DOCTYPE html>
+<html lang="en-us">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    
+    <title>Mac 合盖掉电(休眠掉电)解决方法 | 首页</title>
+    <meta name="viewport" content="width=device-width,minimum-scale=1">
+    <meta name="description" content="Mac在合盖之后还在掉电，第二天打开一看，只有40%的电量。针对合盖掉电的问题可能有以下解决方法。
+1、重置Mac的SMC 根据Mac官方的提示，重置爱SMC可以解决某些电源，电池，风扇相关的问题。重置方法如下： 如何重置 Mac 的 SMC
+​Mac官方针对不同型号的电脑都给出了相关的设置方法。根据教程设置后可能可以解决相关的问题。
+2、在终端中修改电源选项 在终端中查询相关状态，不了解终端是什么东东的朋友可以翻看我之前的文章。 终端
+简洁版本： 为了节约大家时间，这里给一个简单版本。
+ 1.合盖后关闭网络唤醒：  sudo pmset -b tcpkeepalive 0  2.减小合盖后数据在内存中保留的时间（默认8个小时 = 28800秒）  sudo pmset -b standbydelay 14400  3.减小装数据写入硬盘彻底断电的时间  sudo pmset -b autopoweroffdelay 14400  4.修改休眠模式  sudo pmset -b hibernatemode 25 （需要说明的是，修改为25之后，唤醒会稍微变慢，大约需要4~5s，介意者可修改为3） 注意以上操作都需要在敲入命令后输入自己的开机密码然后按回车。
+详细版本 在终端中输入pmset -g，查看相关的电源设置(power managment settings，电源管理设置的意思)；在插电源使用时看到的是插电源状态下的设置，合盖掉电应该是电池状态下的问题，建议拔掉电源后再输入指令。
+ System-wide power settings: Currently in use: lidwake 1 autopoweroff 1 standbydelayhigh 86400 autopoweroffdelay 28800 proximitywake 0 standby 1 standbydelaylow 10800 ttyskeepawake 1 hibernatemode 25 powernap 0 gpuswitch 2 hibernatefile /var/vm/sleepimage highstandbythreshold 50 displaysleep 5 sleep 5 (sleep prevented by timed) acwake 0 halfdim 1 tcpkeepalive 0 disksleep 10 输入pmset -g后会输出现在相关的状态信息，我这里把出现的各个项目按顺序简要说明一下。">
+    <meta name="generator" content="Hugo 0.65.0" />
+    
+    
+      <META NAME="ROBOTS" CONTENT="NOINDEX, NOFOLLOW">
+    
+
+    
+
+  
+  
+    <link rel="stylesheet" href="/myblog/ananke/dist/main.css_5c99d70a7725bacd4c701e995b969fea.css" >
+  
+
+
+
+
+    
+      
+
+    
+
+    
+    
+    <meta property="og:title" content="Mac 合盖掉电(休眠掉电)解决方法" />
+<meta property="og:description" content="Mac在合盖之后还在掉电，第二天打开一看，只有40%的电量。针对合盖掉电的问题可能有以下解决方法。
+1、重置Mac的SMC 根据Mac官方的提示，重置爱SMC可以解决某些电源，电池，风扇相关的问题。重置方法如下： 如何重置 Mac 的 SMC
+​Mac官方针对不同型号的电脑都给出了相关的设置方法。根据教程设置后可能可以解决相关的问题。
+2、在终端中修改电源选项 在终端中查询相关状态，不了解终端是什么东东的朋友可以翻看我之前的文章。 终端
+简洁版本： 为了节约大家时间，这里给一个简单版本。
+ 1.合盖后关闭网络唤醒：  sudo pmset -b tcpkeepalive 0  2.减小合盖后数据在内存中保留的时间（默认8个小时 = 28800秒）  sudo pmset -b standbydelay 14400  3.减小装数据写入硬盘彻底断电的时间  sudo pmset -b autopoweroffdelay 14400  4.修改休眠模式  sudo pmset -b hibernatemode 25 （需要说明的是，修改为25之后，唤醒会稍微变慢，大约需要4~5s，介意者可修改为3） 注意以上操作都需要在敲入命令后输入自己的开机密码然后按回车。
+详细版本 在终端中输入pmset -g，查看相关的电源设置(power managment settings，电源管理设置的意思)；在插电源使用时看到的是插电源状态下的设置，合盖掉电应该是电池状态下的问题，建议拔掉电源后再输入指令。
+ System-wide power settings: Currently in use: lidwake 1 autopoweroff 1 standbydelayhigh 86400 autopoweroffdelay 28800 proximitywake 0 standby 1 standbydelaylow 10800 ttyskeepawake 1 hibernatemode 25 powernap 0 gpuswitch 2 hibernatefile /var/vm/sleepimage highstandbythreshold 50 displaysleep 5 sleep 5 (sleep prevented by timed) acwake 0 halfdim 1 tcpkeepalive 0 disksleep 10 输入pmset -g后会输出现在相关的状态信息，我这里把出现的各个项目按顺序简要说明一下。" />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="http://leizhuray.me/myblog/post/mac_battery/" />
+<meta property="article:published_time" content="2021-03-31T10:49:26+08:00" />
+<meta property="article:modified_time" content="2021-03-31T10:49:26+08:00" /><meta property="og:site_name" content="首页" />
+<meta itemprop="name" content="Mac 合盖掉电(休眠掉电)解决方法">
+<meta itemprop="description" content="Mac在合盖之后还在掉电，第二天打开一看，只有40%的电量。针对合盖掉电的问题可能有以下解决方法。
+1、重置Mac的SMC 根据Mac官方的提示，重置爱SMC可以解决某些电源，电池，风扇相关的问题。重置方法如下： 如何重置 Mac 的 SMC
+​Mac官方针对不同型号的电脑都给出了相关的设置方法。根据教程设置后可能可以解决相关的问题。
+2、在终端中修改电源选项 在终端中查询相关状态，不了解终端是什么东东的朋友可以翻看我之前的文章。 终端
+简洁版本： 为了节约大家时间，这里给一个简单版本。
+ 1.合盖后关闭网络唤醒：  sudo pmset -b tcpkeepalive 0  2.减小合盖后数据在内存中保留的时间（默认8个小时 = 28800秒）  sudo pmset -b standbydelay 14400  3.减小装数据写入硬盘彻底断电的时间  sudo pmset -b autopoweroffdelay 14400  4.修改休眠模式  sudo pmset -b hibernatemode 25 （需要说明的是，修改为25之后，唤醒会稍微变慢，大约需要4~5s，介意者可修改为3） 注意以上操作都需要在敲入命令后输入自己的开机密码然后按回车。
+详细版本 在终端中输入pmset -g，查看相关的电源设置(power managment settings，电源管理设置的意思)；在插电源使用时看到的是插电源状态下的设置，合盖掉电应该是电池状态下的问题，建议拔掉电源后再输入指令。
+ System-wide power settings: Currently in use: lidwake 1 autopoweroff 1 standbydelayhigh 86400 autopoweroffdelay 28800 proximitywake 0 standby 1 standbydelaylow 10800 ttyskeepawake 1 hibernatemode 25 powernap 0 gpuswitch 2 hibernatefile /var/vm/sleepimage highstandbythreshold 50 displaysleep 5 sleep 5 (sleep prevented by timed) acwake 0 halfdim 1 tcpkeepalive 0 disksleep 10 输入pmset -g后会输出现在相关的状态信息，我这里把出现的各个项目按顺序简要说明一下。">
+<meta itemprop="datePublished" content="2021-03-31T10:49:26&#43;08:00" />
+<meta itemprop="dateModified" content="2021-03-31T10:49:26&#43;08:00" />
+<meta itemprop="wordCount" content="305">
+
+
+
+<meta itemprop="keywords" content="" /><meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="Mac 合盖掉电(休眠掉电)解决方法"/>
+<meta name="twitter:description" content="Mac在合盖之后还在掉电，第二天打开一看，只有40%的电量。针对合盖掉电的问题可能有以下解决方法。
+1、重置Mac的SMC 根据Mac官方的提示，重置爱SMC可以解决某些电源，电池，风扇相关的问题。重置方法如下： 如何重置 Mac 的 SMC
+​Mac官方针对不同型号的电脑都给出了相关的设置方法。根据教程设置后可能可以解决相关的问题。
+2、在终端中修改电源选项 在终端中查询相关状态，不了解终端是什么东东的朋友可以翻看我之前的文章。 终端
+简洁版本： 为了节约大家时间，这里给一个简单版本。
+ 1.合盖后关闭网络唤醒：  sudo pmset -b tcpkeepalive 0  2.减小合盖后数据在内存中保留的时间（默认8个小时 = 28800秒）  sudo pmset -b standbydelay 14400  3.减小装数据写入硬盘彻底断电的时间  sudo pmset -b autopoweroffdelay 14400  4.修改休眠模式  sudo pmset -b hibernatemode 25 （需要说明的是，修改为25之后，唤醒会稍微变慢，大约需要4~5s，介意者可修改为3） 注意以上操作都需要在敲入命令后输入自己的开机密码然后按回车。
+详细版本 在终端中输入pmset -g，查看相关的电源设置(power managment settings，电源管理设置的意思)；在插电源使用时看到的是插电源状态下的设置，合盖掉电应该是电池状态下的问题，建议拔掉电源后再输入指令。
+ System-wide power settings: Currently in use: lidwake 1 autopoweroff 1 standbydelayhigh 86400 autopoweroffdelay 28800 proximitywake 0 standby 1 standbydelaylow 10800 ttyskeepawake 1 hibernatemode 25 powernap 0 gpuswitch 2 hibernatefile /var/vm/sleepimage highstandbythreshold 50 displaysleep 5 sleep 5 (sleep prevented by timed) acwake 0 halfdim 1 tcpkeepalive 0 disksleep 10 输入pmset -g后会输出现在相关的状态信息，我这里把出现的各个项目按顺序简要说明一下。"/>
+
+	
+  </head>
+
+  <body class="ma0 avenir bg-near-white">
+
+    
+   
+  
+
+  
+  
+  <header class="cover bg-top" style="background-image: url('http://leizhuray.me/myblog/fig/mac_battery_1.png');">
+    <div class="pb3-m pb6-l bg-black-60">
+      <nav class="pv3 ph3 ph4-ns" role="navigation">
+  <div class="flex-l justify-between items-center center">
+    <a href="/myblog/" class="f3 fw2 hover-white no-underline white-90 dib">
+      
+        首页
+      
+    </a>
+    <div class="flex-l items-center">
+      
+
+      
+        <ul class="pl0 mr3">
+          
+          <li class="list f5 f4-ns fw4 dib pr3">
+            <a class="hover-white no-underline white-90" href="/myblog/about/" title="关于我 page">
+              关于我
+            </a>
+          </li>
+          
+          <li class="list f5 f4-ns fw4 dib pr3">
+            <a class="hover-white no-underline white-90" href="/myblog/post/" title="博客 page">
+              博客
+            </a>
+          </li>
+          
+          <li class="list f5 f4-ns fw4 dib pr3">
+            <a class="hover-white no-underline white-90" href="/myblog/contact/" title="联系我 page">
+              联系我
+            </a>
+          </li>
+          
+        </ul>
+      
+      
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    </div>
+  </div>
+</nav>
+
+      <div class="tc-l pv6 ph3 ph4-ns">
+        
+          <h1 class="f2 f1-l fw2 white-90 mb0 lh-title">Mac 合盖掉电(休眠掉电)解决方法</h1>
+          
+        
+      </div>
+    </div>
+  </header>
+
+
+
+    <main class="pb7" role="main">
+      
+  
+  <article class="flex-l flex-wrap justify-between mw8 center ph3">
+    <header class="mt4 w-100">
+      <aside class="instapaper_ignoref b helvetica tracked">
+          
+        博客
+      </aside>
+      
+
+
+
+
+  <div id="sharing" class="mt3">
+
+    
+    <a href="https://www.facebook.com/sharer.php?u=http://leizhuray.me/myblog/post/mac_battery/" class="facebook no-underline" aria-label="share on Facebook">
+      <svg height="32px"  style="enable-background:new 0 0 67 67;" version="1.1" viewBox="0 0 67 67" width="32px" xml:space="preserve" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"><path d="M28.765,50.32h6.744V33.998h4.499l0.596-5.624h-5.095  l0.007-2.816c0-1.466,0.14-2.253,2.244-2.253h2.812V17.68h-4.5c-5.405,0-7.307,2.729-7.307,7.317v3.377h-3.369v5.625h3.369V50.32z   M33,64C16.432,64,3,50.569,3,34S16.432,4,33,4s30,13.431,30,30S49.568,64,33,64z" style="fill-rule:evenodd;clip-rule:evenodd;"/></svg>
+
+    </a>
+
+    
+    
+    <a href="https://twitter.com/share?url=http://leizhuray.me/myblog/post/mac_battery/&amp;text=Mac%20%e5%90%88%e7%9b%96%e6%8e%89%e7%94%b5%28%e4%bc%91%e7%9c%a0%e6%8e%89%e7%94%b5%29%e8%a7%a3%e5%86%b3%e6%96%b9%e6%b3%95" class="twitter no-underline" aria-label="share on Twitter">
+      <svg height="32px"  style="enable-background:new 0 0 67 67;" version="1.1" viewBox="0 0 67 67" width="32px" xml:space="preserve" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"><path d="M37.167,22.283c-2.619,0.953-4.274,3.411-4.086,6.101  l0.063,1.038l-1.048-0.127c-3.813-0.487-7.145-2.139-9.974-4.915l-1.383-1.377l-0.356,1.017c-0.754,2.267-0.272,4.661,1.299,6.271  c0.838,0.89,0.649,1.017-0.796,0.487c-0.503-0.169-0.943-0.296-0.985-0.233c-0.146,0.149,0.356,2.076,0.754,2.839  c0.545,1.06,1.655,2.097,2.871,2.712l1.027,0.487l-1.215,0.021c-1.173,0-1.215,0.021-1.089,0.467  c0.419,1.377,2.074,2.839,3.918,3.475l1.299,0.444l-1.131,0.678c-1.676,0.976-3.646,1.526-5.616,1.568  C19.775,43.256,19,43.341,19,43.405c0,0.211,2.557,1.397,4.044,1.864c4.463,1.377,9.765,0.783,13.746-1.568  c2.829-1.673,5.657-5,6.978-8.221c0.713-1.716,1.425-4.851,1.425-6.354c0-0.975,0.063-1.102,1.236-2.267  c0.692-0.678,1.341-1.419,1.467-1.631c0.21-0.403,0.188-0.403-0.88-0.043c-1.781,0.636-2.033,0.551-1.152-0.402  c0.649-0.678,1.425-1.907,1.425-2.267c0-0.063-0.314,0.042-0.671,0.233c-0.377,0.212-1.215,0.53-1.844,0.72l-1.131,0.361l-1.027-0.7  c-0.566-0.381-1.361-0.805-1.781-0.932C39.766,21.902,38.131,21.944,37.167,22.283z M33,64C16.432,64,3,50.569,3,34S16.432,4,33,4  s30,13.431,30,30S49.568,64,33,64z" style="fill-rule:evenodd;clip-rule:evenodd;fill:;"/></svg>
+
+    </a>
+
+    
+    <a href="https://www.linkedin.com/shareArticle?mini=true&amp;url=http://leizhuray.me/myblog/post/mac_battery/&amp;title=Mac%20%e5%90%88%e7%9b%96%e6%8e%89%e7%94%b5%28%e4%bc%91%e7%9c%a0%e6%8e%89%e7%94%b5%29%e8%a7%a3%e5%86%b3%e6%96%b9%e6%b3%95" class="linkedin no-underline" aria-label="share on LinkedIn">
+      <svg  height="32px"  style="enable-background:new 0 0 65 65;" version="1.1" viewBox="0 0 65 65" width="32px" xml:space="preserve" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+  <path d="M50.837,48.137V36.425c0-6.275-3.35-9.195-7.816-9.195  c-3.604,0-5.219,1.983-6.119,3.374V27.71h-6.79c0.09,1.917,0,20.427,0,20.427h6.79V36.729c0-0.609,0.044-1.219,0.224-1.655  c0.49-1.22,1.607-2.483,3.482-2.483c2.458,0,3.44,1.873,3.44,4.618v10.929H50.837z M22.959,24.922c2.367,0,3.842-1.57,3.842-3.531  c-0.044-2.003-1.475-3.528-3.797-3.528s-3.841,1.524-3.841,3.528c0,1.961,1.474,3.531,3.753,3.531H22.959z M34,64  C17.432,64,4,50.568,4,34C4,17.431,17.432,4,34,4s30,13.431,30,30C64,50.568,50.568,64,34,64z M26.354,48.137V27.71h-6.789v20.427  H26.354z" style="fill-rule:evenodd;clip-rule:evenodd;fill:;"/>
+</svg>
+
+    </a>
+  </div>
+
+
+      <h1 class="f1 athelas mt3 mb1">Mac 合盖掉电(休眠掉电)解决方法</h1>
+      
+      
+      <time class="f6 mv4 dib tracked" datetime="2021-03-31T10:49:26+08:00">March 31, 2021</time>
+
+      
+      
+    </header>
+    <div class="nested-copy-line-height lh-copy serif f4 nested-links nested-img mid-gray pr4-l w-two-thirds-l"><p>Mac在合盖之后还在掉电，第二天打开一看，只有40%的电量。针对合盖掉电的问题可能有以下解决方法。</p>
+<h2 id="1重置mac的smc">1、重置Mac的SMC</h2>
+<p>根据Mac官方的提示，重置爱SMC可以解决某些电源，电池，风扇相关的问题。重置方法如下：
+<a href="support.apple.com">如何重置 Mac 的 SMC</a></p>
+<p>​Mac官方针对不同型号的电脑都给出了相关的设置方法。根据教程设置后可能可以解决相关的问题。</p>
+<h2 id="2在终端中修改电源选项">2、在终端中修改电源选项</h2>
+<p>在终端中查询相关状态，不了解终端是什么东东的朋友可以翻看我之前的文章。
+<a href="https:/zhuanlan.zhihu.com/p/269421539">终端</a></p>
+<h1 id="简洁版本">简洁版本：</h1>
+<p>为了节约大家时间，这里给一个简单版本。</p>
+<ul>
+<li>1.合盖后关闭网络唤醒：</li>
+</ul>
+<pre><code>sudo pmset -b tcpkeepalive 0
+</code></pre><ul>
+<li>2.减小合盖后数据在内存中保留的时间（默认8个小时 = 28800秒）</li>
+</ul>
+<pre><code>sudo pmset -b standbydelay 14400
+</code></pre><ul>
+<li>3.减小装数据写入硬盘彻底断电的时间</li>
+</ul>
+<pre><code>sudo pmset -b autopoweroffdelay 14400
+</code></pre><ul>
+<li>4.修改休眠模式</li>
+</ul>
+<pre><code>sudo pmset -b hibernatemode 25
+</code></pre><p>（需要说明的是，修改为25之后，唤醒会稍微变慢，大约需要4~5s，介意者可修改为3）
+注意以上操作都需要在敲入命令后输入自己的开机密码然后按回车。</p>
+<h1 id="详细版本">详细版本</h1>
+<p>在终端中输入pmset -g，查看相关的电源设置(power managment settings，电源管理设置的意思)；在插电源使用时看到的是插电源状态下的设置，合盖掉电应该是电池状态下的问题，建议拔掉电源后再输入指令。</p>
+<pre><code>    System-wide power settings:
+    Currently in use:
+    lidwake              1
+    autopoweroff         1
+    standbydelayhigh     86400
+    autopoweroffdelay    28800
+    proximitywake        0
+    standby              1
+    standbydelaylow      10800
+    ttyskeepawake        1
+    hibernatemode        25
+    powernap             0
+    gpuswitch            2
+    hibernatefile        /var/vm/sleepimage
+    highstandbythreshold 50
+    displaysleep         5
+    sleep                5 (sleep prevented by timed)
+    acwake               0
+    halfdim              1
+    tcpkeepalive         0
+    disksleep            10
+
+</code></pre><p>输入pmset -g后会输出现在相关的状态信息，我这里把出现的各个项目按顺序简要说明一下。</p>
+<pre><code>lidwake – 当笔记本打开盖子的时候唤醒机器（值为 1 或者 0）
+
+autopoweroff – 系统将写入休眠镜像并且进入到低电量芯片组睡眠。从这个状态唤醒所花的时间要比普通休眠唤醒的时间要长。如果有外部设备连接，系统不会自动切断电源，如果系统使用电池供电，或者系统被绑定在网络并且通过网络访问被唤醒功能开启。
+
+standbydelayhigh - 当电源电量够高时，合盖后内存保留的秒数
+
+autopoweroffdelay – 进入自动切断电源模式的延迟（值为表示分钟的整数）
+
+proximitywake - 同 iCloud 设备唤醒
+
+standby - 合盖后保留内存（值为0或者1）
+
+standbydelaylow - 电池电量低时，合盖后内存保留的秒数
+
+ttyskeepawake – 当任何 tty（如：远程登录会话） 在活动状态时，阻止系统空闲睡眠。tty 只能是非活动 当它的空闲时间超过系统睡眠计时器（值为 1 或者 0）
+
+hibernatemode – 改变休眠模式
+powernap -  电源小憩（0或1）
+gpuswitch - gpu支持（2为自动模式）
+
+hibernatefile – 改变休眠镜像文件位置。镜像应该只被定为到根卷中。请小心使用（值为路径）
+
+highstandbythreshold  - 电池剩余电量百分比 standby模式的选择阈值，一般为50%
+
+displaysleep – 显示器睡眠计时器；替换 10.4 版本中的 dim 参数（值为分钟，或者设置 0 来禁用）
+
+sleep – 系统睡眠计时器（值为分钟，或者设置 0 来禁用）
+acwake – 当电源（AC 或者电池）改变的时候唤醒机器（值为 1 或者 0）
+halfdim – 显示器睡眠将使用在最大亮度和关闭显示器之间的中间亮度（值为 1 或者 0）
+tcpkeepalive - 合盖时是否保存网络连接
+disksleep  - 硬盘休眠时间（值为分钟）
+
+</code></pre><p>为了便于大家理解，我把Mac休眠过程的示意图给大家。</p>
+<p><img src="../fig/mac_battery_2.png" alt="Mac休眠"></p>
+<p>在合盖之后，或者长时间不操作电脑之后，系统将进入等待休眠的模式，在sleep的时间之后，依据hibernatemode的模式不同，会进入不同的休眠模式。
+依据Mac的休眠流程，我们主要需要修改的参数有以下几个：</p>
+<p>sleep，hibernatemode，提高standby的电量阈值；</p>
+<p>tcpkeepalive设置为0，合盖后中断网络链接；</p>
+<p>proximitywake设置成 0, 关闭被同一网络下的同 iCloud 设备唤醒。</p>
+<p>这里需要对hibernatemode的不同参数说明一下。
+hibernatemode = 0
+iMac, Mac Mini等 Mac桌面设备默认参数
+持续向内存供电，将数据保留在内存
+唤醒速度快，减少硬盘占用
+数据有丢失风险
+耗电量大</p>
+<p>hibernatemode = 25
+将数据写入硬盘
+不向内存供电，将内存镜像直接写入硬盘
+数据不易丢失，镜像占用硬盘空间
+唤醒速度慢
+耗电量少</p>
+<p>hibernatemode = 3
+MacBook 笔记本设备默认参数
+safe sleep, 数据既写入内存又写入硬盘
+持续向内存供电
+唤醒时，根据设备电量自动选择从 内存/硬盘 恢复
+依据以上参数含义，我们将电池供电下的状态设置如下：</p>
+<pre><code>* 5 分钟后进入休眠
+sudo pmset -b sleep 5
+* 向硬盘写入镜像，不向内存供电
+sudo pmset -b hibernatemode 25
+* 显示器休眠时间：15 分钟
+sudo pmset -b displaysleep 15
+* 硬盘休眠时间：30 分钟
+sudo pmset -b disksleep 30
+* 休眠时断网
+sudo pmset -b tcpkeepalive 0
+* 高电量下 standby: 4小时
+sudo pmset -b standbydelayhigh 14400
+* 低电量下 standby: 2小时
+sudo pmset -b standbydelaylow 7200
+* standby 电量阈值：75%
+sudo pmset -b highstandbythreshold 75
+* 开盖唤醒
+sudo pmset -b lidwake 1
+* 关闭被同一 iCloud 下的设备唤醒
+sudo pmset -b acwake 0
+</code></pre><p>经过以上设置之后，应该就可以减少合盖后Mac的掉电情况。实测掉电很少，一晚上大约1%吧。希望以上内容可以对大家有所帮助，谢谢大家。</p>
+<ul class="pa0">
+  
+</ul>
+<div class="mt6 instapaper_ignoref">
+      
+      
+      </div>
+    </div>
+
+    <aside class="w-30-l mt6-l">
+
+
+
+
+</aside>
+
+  </article>
+
+    </main>
+    <footer class="bg-black bottom-0 w-100 pa3" role="contentinfo">
+  <div class="flex justify-between">
+  <a class="f4 fw4 hover-white no-underline white-70 dn dib-ns pv2 ph3" href="http://leizhuray.me/myblog/" >
+    &copy;  首页 2021 
+  </a>
+    <div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</div>
+  </div>
+</footer>
+
+  </body>
+</html>

@@ -3,15 +3,50 @@
   xmlns:xhtml="http://www.w3.org/1999/xhtml">
   
   <url>
+    <loc>http://leizhuray.me/myblog/post/mac_battery/</loc>
+    <lastmod>2021-03-31T10:49:26+08:00</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.5</priority>
+  </url>
+  
+  <url>
     <loc>http://leizhuray.me/myblog/</loc>
-    <lastmod>2021-03-30T20:39:45+08:00</lastmod>
+    <lastmod>2021-03-31T10:49:26+08:00</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.5</priority>
+  </url>
+  
+  <url>
+    <loc>http://leizhuray.me/myblog/post/hydro_code/</loc>
+    <lastmod>2021-02-21T20:39:45+08:00</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.5</priority>
+  </url>
+  
+  <url>
+    <loc>http://leizhuray.me/myblog/post/flash_03/</loc>
+    <lastmod>2021-02-01T20:39:45+08:00</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.5</priority>
+  </url>
+  
+  <url>
+    <loc>http://leizhuray.me/myblog/post/flash_02/</loc>
+    <lastmod>2021-01-31T20:39:45+08:00</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.5</priority>
+  </url>
+  
+  <url>
+    <loc>http://leizhuray.me/myblog/post/flash_01/</loc>
+    <lastmod>2021-01-30T20:39:45+08:00</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.5</priority>
   </url>
   
   <url>
     <loc>http://leizhuray.me/myblog/post/test/</loc>
-    <lastmod>2021-03-30T20:39:45+08:00</lastmod>
+    <lastmod>2020-08-30T20:39:45+08:00</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.5</priority>
   </url>

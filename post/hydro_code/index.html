@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="en-us">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    
+    <title>流体程序介绍 | 首页</title>
+    <meta name="viewport" content="width=device-width,minimum-scale=1">
+    <meta name="description" content="简单的一维流体程序  记得我第一次接触CFD(computational fluid dynamics)时，一脸的忙乱。师兄丢给我一本Toro的Riemann Solvers and Numerical Methods for Fluid Dynamics。这本书确实挺好的，但对零基础的我这样的小白来说，看完之后还是一脸懵逼，依然不明白它有什么用。经过最近两年的捶打，我越来越觉得入门应该是自己动手去写一个简单的流体code，边学边用，才会更明白书中的那些公式所代表的物理内涵。
+欧拉方程  与Toro的书类似，我们也从欧拉方程开始。欧拉方程是用来描述无粘性可压缩（或者不可压缩）流体的控制方程，包含质量守恒，动量守恒和能量守恒三个方程式；是非线性双曲偏微分方程。守恒形式为：
+$$ \frac{\partial \mathbf{U}}{\partial t}&#43;\frac{\partial \mathbf{F}}{\partial x}&#43;\frac{\partial \mathbf{G}}{\partial y}&#43;\frac{\partial \mathbf{H}}{\partial z}=0 $$
+ 其中 $$ \left.\begin{array}{l}\mathbf{U}=\left[\begin{array}{c}\rho \ \rho u \ \rho v \ \rho w \ E\end{array}\right], \mathbf{F}=\left[\begin{array}{c}\rho u \ \rho u^{2}&#43;p \ \rho u v \ \rho u w \ u(E&#43;p)\end{array}\right] \ \mathbf{G}=\left[\begin{array}{c}\rho v \ \rho u^{2}&#43;p \ \rho v w \ v(E&#43;p)\end{array}\right], \mathbf{H}=\left[\begin{array}{c}\rho w \ \rho u w \ \rho v w \ \rho w^{2}&#43;p \ w(E&#43;p)\end{array}\right]\end{array}\right} $$">
+    <meta name="generator" content="Hugo 0.65.0" />
+    
+    
+      <META NAME="ROBOTS" CONTENT="NOINDEX, NOFOLLOW">
+    
+
+    
+
+  
+  
+    <link rel="stylesheet" href="/myblog/ananke/dist/main.css_5c99d70a7725bacd4c701e995b969fea.css" >
+  
+
+
+
+
+    
+      
+
+    
+
+    
+    
+    <meta property="og:title" content="流体程序介绍" />
+<meta property="og:description" content="简单的一维流体程序  记得我第一次接触CFD(computational fluid dynamics)时，一脸的忙乱。师兄丢给我一本Toro的Riemann Solvers and Numerical Methods for Fluid Dynamics。这本书确实挺好的，但对零基础的我这样的小白来说，看完之后还是一脸懵逼，依然不明白它有什么用。经过最近两年的捶打，我越来越觉得入门应该是自己动手去写一个简单的流体code，边学边用，才会更明白书中的那些公式所代表的物理内涵。
+欧拉方程  与Toro的书类似，我们也从欧拉方程开始。欧拉方程是用来描述无粘性可压缩（或者不可压缩）流体的控制方程，包含质量守恒，动量守恒和能量守恒三个方程式；是非线性双曲偏微分方程。守恒形式为：
+$$ \frac{\partial \mathbf{U}}{\partial t}&#43;\frac{\partial \mathbf{F}}{\partial x}&#43;\frac{\partial \mathbf{G}}{\partial y}&#43;\frac{\partial \mathbf{H}}{\partial z}=0 $$
+ 其中 $$ \left.\begin{array}{l}\mathbf{U}=\left[\begin{array}{c}\rho \ \rho u \ \rho v \ \rho w \ E\end{array}\right], \mathbf{F}=\left[\begin{array}{c}\rho u \ \rho u^{2}&#43;p \ \rho u v \ \rho u w \ u(E&#43;p)\end{array}\right] \ \mathbf{G}=\left[\begin{array}{c}\rho v \ \rho u^{2}&#43;p \ \rho v w \ v(E&#43;p)\end{array}\right], \mathbf{H}=\left[\begin{array}{c}\rho w \ \rho u w \ \rho v w \ \rho w^{2}&#43;p \ w(E&#43;p)\end{array}\right]\end{array}\right} $$" />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="http://leizhuray.me/myblog/post/hydro_code/" />
+<meta property="article:published_time" content="2021-02-21T20:39:45+08:00" />
+<meta property="article:modified_time" content="2021-02-21T20:39:45+08:00" /><meta property="og:site_name" content="首页" />
+<meta itemprop="name" content="流体程序介绍">
+<meta itemprop="description" content="简单的一维流体程序  记得我第一次接触CFD(computational fluid dynamics)时，一脸的忙乱。师兄丢给我一本Toro的Riemann Solvers and Numerical Methods for Fluid Dynamics。这本书确实挺好的，但对零基础的我这样的小白来说，看完之后还是一脸懵逼，依然不明白它有什么用。经过最近两年的捶打，我越来越觉得入门应该是自己动手去写一个简单的流体code，边学边用，才会更明白书中的那些公式所代表的物理内涵。
+欧拉方程  与Toro的书类似，我们也从欧拉方程开始。欧拉方程是用来描述无粘性可压缩（或者不可压缩）流体的控制方程，包含质量守恒，动量守恒和能量守恒三个方程式；是非线性双曲偏微分方程。守恒形式为：
+$$ \frac{\partial \mathbf{U}}{\partial t}&#43;\frac{\partial \mathbf{F}}{\partial x}&#43;\frac{\partial \mathbf{G}}{\partial y}&#43;\frac{\partial \mathbf{H}}{\partial z}=0 $$
+ 其中 $$ \left.\begin{array}{l}\mathbf{U}=\left[\begin{array}{c}\rho \ \rho u \ \rho v \ \rho w \ E\end{array}\right], \mathbf{F}=\left[\begin{array}{c}\rho u \ \rho u^{2}&#43;p \ \rho u v \ \rho u w \ u(E&#43;p)\end{array}\right] \ \mathbf{G}=\left[\begin{array}{c}\rho v \ \rho u^{2}&#43;p \ \rho v w \ v(E&#43;p)\end{array}\right], \mathbf{H}=\left[\begin{array}{c}\rho w \ \rho u w \ \rho v w \ \rho w^{2}&#43;p \ w(E&#43;p)\end{array}\right]\end{array}\right} $$">
+<meta itemprop="datePublished" content="2021-02-21T20:39:45&#43;08:00" />
+<meta itemprop="dateModified" content="2021-02-21T20:39:45&#43;08:00" />
+<meta itemprop="wordCount" content="222">
+
+
+
+<meta itemprop="keywords" content="" /><meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="流体程序介绍"/>
+<meta name="twitter:description" content="简单的一维流体程序  记得我第一次接触CFD(computational fluid dynamics)时，一脸的忙乱。师兄丢给我一本Toro的Riemann Solvers and Numerical Methods for Fluid Dynamics。这本书确实挺好的，但对零基础的我这样的小白来说，看完之后还是一脸懵逼，依然不明白它有什么用。经过最近两年的捶打，我越来越觉得入门应该是自己动手去写一个简单的流体code，边学边用，才会更明白书中的那些公式所代表的物理内涵。
+欧拉方程  与Toro的书类似，我们也从欧拉方程开始。欧拉方程是用来描述无粘性可压缩（或者不可压缩）流体的控制方程，包含质量守恒，动量守恒和能量守恒三个方程式；是非线性双曲偏微分方程。守恒形式为：
+$$ \frac{\partial \mathbf{U}}{\partial t}&#43;\frac{\partial \mathbf{F}}{\partial x}&#43;\frac{\partial \mathbf{G}}{\partial y}&#43;\frac{\partial \mathbf{H}}{\partial z}=0 $$
+ 其中 $$ \left.\begin{array}{l}\mathbf{U}=\left[\begin{array}{c}\rho \ \rho u \ \rho v \ \rho w \ E\end{array}\right], \mathbf{F}=\left[\begin{array}{c}\rho u \ \rho u^{2}&#43;p \ \rho u v \ \rho u w \ u(E&#43;p)\end{array}\right] \ \mathbf{G}=\left[\begin{array}{c}\rho v \ \rho u^{2}&#43;p \ \rho v w \ v(E&#43;p)\end{array}\right], \mathbf{H}=\left[\begin{array}{c}\rho w \ \rho u w \ \rho v w \ \rho w^{2}&#43;p \ w(E&#43;p)\end{array}\right]\end{array}\right} $$"/>
+
+	
+  </head>
+
+  <body class="ma0 avenir bg-near-white">
+
+    
+   
+  
+
+  <header>
+    <div class="bg-black">
+      <nav class="pv3 ph3 ph4-ns" role="navigation">
+  <div class="flex-l justify-between items-center center">
+    <a href="/myblog/" class="f3 fw2 hover-white no-underline white-90 dib">
+      
+        首页
+      
+    </a>
+    <div class="flex-l items-center">
+      
+
+      
+        <ul class="pl0 mr3">
+          
+          <li class="list f5 f4-ns fw4 dib pr3">
+            <a class="hover-white no-underline white-90" href="/myblog/about/" title="关于我 page">
+              关于我
+            </a>
+          </li>
+          
+          <li class="list f5 f4-ns fw4 dib pr3">
+            <a class="hover-white no-underline white-90" href="/myblog/post/" title="博客 page">
+              博客
+            </a>
+          </li>
+          
+          <li class="list f5 f4-ns fw4 dib pr3">
+            <a class="hover-white no-underline white-90" href="/myblog/contact/" title="联系我 page">
+              联系我
+            </a>
+          </li>
+          
+        </ul>
+      
+      
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    </div>
+  </div>
+</nav>
+
+    </div>
+  </header>
+
+
+
+    <main class="pb7" role="main">
+      
+  
+  <article class="flex-l flex-wrap justify-between mw8 center ph3">
+    <header class="mt4 w-100">
+      <aside class="instapaper_ignoref b helvetica tracked">
+          
+        博客
+      </aside>
+      
+
+
+
+
+  <div id="sharing" class="mt3">
+
+    
+    <a href="https://www.facebook.com/sharer.php?u=http://leizhuray.me/myblog/post/hydro_code/" class="facebook no-underline" aria-label="share on Facebook">
+      <svg height="32px"  style="enable-background:new 0 0 67 67;" version="1.1" viewBox="0 0 67 67" width="32px" xml:space="preserve" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"><path d="M28.765,50.32h6.744V33.998h4.499l0.596-5.624h-5.095  l0.007-2.816c0-1.466,0.14-2.253,2.244-2.253h2.812V17.68h-4.5c-5.405,0-7.307,2.729-7.307,7.317v3.377h-3.369v5.625h3.369V50.32z   M33,64C16.432,64,3,50.569,3,34S16.432,4,33,4s30,13.431,30,30S49.568,64,33,64z" style="fill-rule:evenodd;clip-rule:evenodd;"/></svg>
+
+    </a>
+
+    
+    
+    <a href="https://twitter.com/share?url=http://leizhuray.me/myblog/post/hydro_code/&amp;text=%e6%b5%81%e4%bd%93%e7%a8%8b%e5%ba%8f%e4%bb%8b%e7%bb%8d" class="twitter no-underline" aria-label="share on Twitter">
+      <svg height="32px"  style="enable-background:new 0 0 67 67;" version="1.1" viewBox="0 0 67 67" width="32px" xml:space="preserve" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"><path d="M37.167,22.283c-2.619,0.953-4.274,3.411-4.086,6.101  l0.063,1.038l-1.048-0.127c-3.813-0.487-7.145-2.139-9.974-4.915l-1.383-1.377l-0.356,1.017c-0.754,2.267-0.272,4.661,1.299,6.271  c0.838,0.89,0.649,1.017-0.796,0.487c-0.503-0.169-0.943-0.296-0.985-0.233c-0.146,0.149,0.356,2.076,0.754,2.839  c0.545,1.06,1.655,2.097,2.871,2.712l1.027,0.487l-1.215,0.021c-1.173,0-1.215,0.021-1.089,0.467  c0.419,1.377,2.074,2.839,3.918,3.475l1.299,0.444l-1.131,0.678c-1.676,0.976-3.646,1.526-5.616,1.568  C19.775,43.256,19,43.341,19,43.405c0,0.211,2.557,1.397,4.044,1.864c4.463,1.377,9.765,0.783,13.746-1.568  c2.829-1.673,5.657-5,6.978-8.221c0.713-1.716,1.425-4.851,1.425-6.354c0-0.975,0.063-1.102,1.236-2.267  c0.692-0.678,1.341-1.419,1.467-1.631c0.21-0.403,0.188-0.403-0.88-0.043c-1.781,0.636-2.033,0.551-1.152-0.402  c0.649-0.678,1.425-1.907,1.425-2.267c0-0.063-0.314,0.042-0.671,0.233c-0.377,0.212-1.215,0.53-1.844,0.72l-1.131,0.361l-1.027-0.7  c-0.566-0.381-1.361-0.805-1.781-0.932C39.766,21.902,38.131,21.944,37.167,22.283z M33,64C16.432,64,3,50.569,3,34S16.432,4,33,4  s30,13.431,30,30S49.568,64,33,64z" style="fill-rule:evenodd;clip-rule:evenodd;fill:;"/></svg>
+
+    </a>
+
+    
+    <a href="https://www.linkedin.com/shareArticle?mini=true&amp;url=http://leizhuray.me/myblog/post/hydro_code/&amp;title=%e6%b5%81%e4%bd%93%e7%a8%8b%e5%ba%8f%e4%bb%8b%e7%bb%8d" class="linkedin no-underline" aria-label="share on LinkedIn">
+      <svg  height="32px"  style="enable-background:new 0 0 65 65;" version="1.1" viewBox="0 0 65 65" width="32px" xml:space="preserve" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+  <path d="M50.837,48.137V36.425c0-6.275-3.35-9.195-7.816-9.195  c-3.604,0-5.219,1.983-6.119,3.374V27.71h-6.79c0.09,1.917,0,20.427,0,20.427h6.79V36.729c0-0.609,0.044-1.219,0.224-1.655  c0.49-1.22,1.607-2.483,3.482-2.483c2.458,0,3.44,1.873,3.44,4.618v10.929H50.837z M22.959,24.922c2.367,0,3.842-1.57,3.842-3.531  c-0.044-2.003-1.475-3.528-3.797-3.528s-3.841,1.524-3.841,3.528c0,1.961,1.474,3.531,3.753,3.531H22.959z M34,64  C17.432,64,4,50.568,4,34C4,17.431,17.432,4,34,4s30,13.431,30,30C64,50.568,50.568,64,34,64z M26.354,48.137V27.71h-6.789v20.427  H26.354z" style="fill-rule:evenodd;clip-rule:evenodd;fill:;"/>
+</svg>
+
+    </a>
+  </div>
+
+
+      <h1 class="f1 athelas mt3 mb1">流体程序介绍</h1>
+      
+      
+      <time class="f6 mv4 dib tracked" datetime="2021-02-21T20:39:45+08:00">February 21, 2021</time>
+
+      
+      
+    </header>
+    <div class="nested-copy-line-height lh-copy serif f4 nested-links nested-img mid-gray pr4-l w-two-thirds-l"><h1 id="简单的一维流体程序">简单的一维流体程序</h1>
+<p>  记得我第一次接触CFD(computational fluid dynamics)时，一脸的忙乱。师兄丢给我一本Toro的Riemann Solvers and Numerical Methods for Fluid Dynamics。这本书确实挺好的，但对零基础的我这样的小白来说，看完之后还是一脸懵逼，依然不明白它有什么用。经过最近两年的捶打，我越来越觉得入门应该是自己动手去写一个简单的流体code，边学边用，才会更明白书中的那些公式所代表的物理内涵。</p>
+<h2 id="欧拉方程">欧拉方程</h2>
+<p>  与Toro的书类似，我们也从欧拉方程开始。欧拉方程是用来描述无粘性可压缩（或者不可压缩）流体的控制方程，包含质量守恒，动量守恒和能量守恒三个方程式；是非线性双曲偏微分方程。守恒形式为：</p>
+<p>$$ \frac{\partial \mathbf{U}}{\partial t}+\frac{\partial \mathbf{F}}{\partial x}+\frac{\partial \mathbf{G}}{\partial y}+\frac{\partial \mathbf{H}}{\partial z}=0 $$</p>
+<p>  其中
+$$ \left.\begin{array}{l}\mathbf{U}=\left[\begin{array}{c}\rho \ \rho u \ \rho v \ \rho w \ E\end{array}\right], \mathbf{F}=\left[\begin{array}{c}\rho u \ \rho u^{2}+p \ \rho u v \ \rho u w \ u(E+p)\end{array}\right] \ \mathbf{G}=\left[\begin{array}{c}\rho v \ \rho u^{2}+p \ \rho v w \ v(E+p)\end{array}\right], \mathbf{H}=\left[\begin{array}{c}\rho w \ \rho u w \ \rho v w \ \rho w^{2}+p \ w(E+p)\end{array}\right]\end{array}\right} $$</p>
+<p>  三维的形式相对比较复杂，我们在这里只考虑一维Euler方程：
+$$ \frac{\partial \mathbf{U}}{\partial t} + \frac{\partial F}{\partial x} = 0 $$
+  它其实是由三个方程所构成的：
+$$
+\begin{aligned} \frac{\partial \rho}{\partial t}+\frac{\partial(\rho u)}{\partial x} &amp;=0 \
+\frac{\partial(\rho u)}{\partial t}+\frac{\partial\left(\rho u^{2}+p\right)}{\partial x} &amp;=0 \
+\frac{\partial(E)}{\partial t}+\frac{\partial(u(E+p))}{\partial x} &amp;=0 \end{aligned}
+$$
+  为了能够使方程组闭合，我们需要把状态方程加入，即压强$p$与内能$e$的表达式。我们在这里采用理想气体状态方程。在这里：$E = \rho(e + \frac{1}{2}u^2)$, $p=\rho e (\gamma -1)$.</p>
+<p>  为了可以利用计算机计算这一偏微分方程组，利用有限体积法，在空间上离散体积元。在空间$[x_{i-\frac{1}{2}}, x_{i+\frac{1}{2}}]$上对守恒形式的方程进行积分，得到：</p>
+<p>$$ \frac{\partial \langle U\rangle_i}{\partial t} = -\frac{F_{i+\frac{1}{2}} - F_{i-\frac{1}{2}}}{\Delta x} $$</p>
+<p>  其中 $\langle U\rangle_i = \frac{1}{\Delta x} \int_{x_{i-1/2}}^{x_{i+1/2}} U(x) dx$</p>
+<p>  通过计算通过控制体的通量的变化，我们可以知道在一个很小的时间步长$\Delta t$内状态的变化，从而对整个体系进行演化。</p>
+<h2 id="黎曼问题">黎曼问题</h2>
+<p>   黎曼问题是一类特定的初值间断问题。例如针对上面提到的一维欧拉方程，在$t=0$时，$U = U_{+}, if \ x &gt; 0; U = U_{-},if \ x&lt;0$。黎曼问题是计算流体力学中的基本问题。一维欧拉方程的黎曼问题是有解析解的，所以一般我们可以用这种方法来考察新写的流体程序的正确性。为什么我们需要考察黎曼问题呢？因为间断问题在流体计算中是十分常见的，例如在网格划分中，相邻网格界面上</p>
+<!-- raw HTML omitted -->
+<p>   如图1所示，我们将关心的一维区域划分为相同大小的一系列网格。利用 ‘lo’ 和 ‘hi’ 来代表第一个和最后一个网格。用过数值计算程序的人一般知道，如果设置边界条件的话，我们需要利用一些ghost cell来对边界进行设置。在这里我们利用类似的方法，在两端通过“鬼网格”设置我们的边界条件。我们可以在模拟中设定需要划分的网格数以及“鬼网格”数目。</p>
+<p>我们设置一个容器来存储我们会用到的变量。</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-python" data-lang="python"><span style="color:#66d9ef">class</span> <span style="color:#a6e22e">FluidVars</span>:
+
+    <span style="color:#66d9ef">def</span> __init__(self, gamma<span style="color:#f92672">=</span><span style="color:#ae81ff">1.4</span>, C<span style="color:#f92672">=</span><span style="color:#ae81ff">0.8</span>):
+        self<span style="color:#f92672">.</span>nvar <span style="color:#f92672">=</span> <span style="color:#ae81ff">3</span>
+    
+        <span style="color:#75715e"># conserved variables</span>
+        self<span style="color:#f92672">.</span>urho <span style="color:#f92672">=</span> <span style="color:#ae81ff">0</span>   <span style="color:#75715e">#密度</span>
+        self<span style="color:#f92672">.</span>umx <span style="color:#f92672">=</span> <span style="color:#ae81ff">1</span>    <span style="color:#75715e">#动量</span>
+        self<span style="color:#f92672">.</span>uener <span style="color:#f92672">=</span> <span style="color:#ae81ff">2</span>  <span style="color:#75715e">#能量</span>
+    
+        <span style="color:#75715e"># primitive variables</span>
+        self<span style="color:#f92672">.</span>qrho <span style="color:#f92672">=</span> <span style="color:#ae81ff">0</span>   <span style="color:#75715e">#密度</span>
+        self<span style="color:#f92672">.</span>qu <span style="color:#f92672">=</span> <span style="color:#ae81ff">1</span>     <span style="color:#75715e">#速度</span>
+        self<span style="color:#f92672">.</span>qp <span style="color:#f92672">=</span> <span style="color:#ae81ff">2</span>     <span style="color:#75715e">#压强</span>
+    
+        <span style="color:#75715e"># EOS gamma</span>
+        self<span style="color:#f92672">.</span>gamma <span style="color:#f92672">=</span> gamma
+        
+        <span style="color:#75715e"># CFL number</span>
+        self<span style="color:#f92672">.</span>C <span style="color:#f92672">=</span> C
+</code></pre></div><p>为了更有效的</p>
+<ul class="pa0">
+  
+</ul>
+<div class="mt6 instapaper_ignoref">
+      
+      
+      </div>
+    </div>
+
+    <aside class="w-30-l mt6-l">
+
+
+
+
+</aside>
+
+  </article>
+
+    </main>
+    <footer class="bg-black bottom-0 w-100 pa3" role="contentinfo">
+  <div class="flex justify-between">
+  <a class="f4 fw4 hover-white no-underline white-70 dn dib-ns pv2 ph3" href="http://leizhuray.me/myblog/" >
+    &copy;  首页 2021 
+  </a>
+    <div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</div>
+  </div>
+</footer>
+
+  </body>
+</html>
